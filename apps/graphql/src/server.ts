@@ -1,8 +1,11 @@
+import fs from "fs";
 import { createYoga, createSchema, createPubSub } from "graphql-yoga";
 import { createServer } from "node:http";
 import reports from "./database/reports.json" assert { type: "json" };
 
 const pubSub = createPubSub();
+
+const allReports = reports.elements;
 
 // Provide your schema
 const yoga = createYoga({
@@ -75,7 +78,7 @@ const yoga = createYoga({
     `,
     resolvers: {
       Query: {
-        reports: () => reports.elements.filter((r) => r.state !== "RESOLVED"),
+        reports: () => allReports.filter((r) => r.state !== "RESOLVED"),
       },
       Mutation: {
         addReport: (parent, args) => {
@@ -90,7 +93,7 @@ const yoga = createYoga({
               ...args,
             };
 
-            reports.elements.push(newReport);
+            allReports.push(newReport);
 
             pubSub.publish("NEW_REPORT", newReport);
             return newReport;
@@ -100,12 +103,10 @@ const yoga = createYoga({
         },
         resolveReport: (parent, args) => {
           try {
-            const reportIndex = reports.elements.findIndex(
-              (r) => r.id === args.id
-            );
-            if (!reports.elements[reportIndex]) return false;
+            const reportIndex = allReports.findIndex((r) => r.id === args.id);
+            if (!allReports[reportIndex]) return false;
 
-            reports.elements[reportIndex].state = "RESOLVED";
+            allReports[reportIndex].state = "RESOLVED";
 
             pubSub.publish("UPDATE_REPORT", {
               id: args.id,
@@ -119,12 +120,10 @@ const yoga = createYoga({
         },
         blockReport: (parent, args) => {
           try {
-            const reportIndex = reports.elements.findIndex(
-              (r) => r.id === args.id
-            );
-            if (!reports.elements[reportIndex]) return false;
+            const reportIndex = allReports.findIndex((r) => r.id === args.id);
+            if (!allReports[reportIndex]) return false;
 
-            reports.elements[reportIndex].state = "BLOCKED";
+            allReports[reportIndex].state = "BLOCKED";
 
             pubSub.publish("UPDATE_REPORT", {
               id: args.id,
