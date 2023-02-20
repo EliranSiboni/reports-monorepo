@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -13,6 +14,10 @@
       "outputs": []
     },
     "dev": {
+      "cache": false
+    },
+    "dev#graphql": {
+      "env": ["SERVER_PORT"],
       "cache": false
     },
     "start": {
