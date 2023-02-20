@@ -158,8 +158,16 @@ export default function Index({ data: initData }: any) {
             p="20px"
           >
             <Flex justify="space-between" w={{ base: "100%" }}>
-              <Text>State: {report.state}</Text>
-              <Text>Type: {report.payload.reportType}</Text>
+              <Text
+                p="5px"
+                borderRadius="10px"
+                backgroundColor="brand.state"
+                color="white"
+                boxShadow="1px 1px 2px 1px lightgrey"
+              >
+                {report.state.toLowerCase()}
+              </Text>
+              <Text>{report.payload.reportType.toLowerCase()}</Text>
             </Flex>
             <Flex w="100%" justify="space-between" alignItems="center">
               <Flex w="60%" flexWrap="wrap">
