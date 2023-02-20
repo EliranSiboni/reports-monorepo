@@ -12,3 +12,12 @@ export const REPORTS_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const REPORTS_UPDATE_SUBSCRIPTION = gql`
+  subscription {
+    updateReport {
+      id
+      state
+    }
+  }
+`;
