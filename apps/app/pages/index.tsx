@@ -40,10 +40,7 @@ export default function Index({ data: initData }: any) {
   useEffect(() => {
     const handleReportsEffect = () => {
       if (reportsData) {
-        setReports((prev: any) => ({
-          ...prev,
-          reports: [...reports, reportsData.broadcastReports],
-        }));
+        setReports([...reports, { ...reportsData.broadcastReports }]);
       }
     };
 
