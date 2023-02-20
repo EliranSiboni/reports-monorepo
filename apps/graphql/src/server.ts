@@ -45,10 +45,18 @@ const yoga = createYoga({
           state: String!
           payload: PayloadInput!
         ): Report!
+        resolveReport(id: ID!): Boolean!
+        blockReport(id: ID!): Boolean!
+      }
+
+      type UpdateReport {
+        id: ID!
+        state: String!
       }
 
       type Subscription {
         broadcastReports: Report!
+        updateReport: UpdateReport!
       }
 
       input ReferenceInput {
@@ -67,7 +75,7 @@ const yoga = createYoga({
     `,
     resolvers: {
       Query: {
-        reports: () => reports.elements,
+        reports: () => reports.elements.filter((r) => r.state !== "RESOLVED"),
       },
       Mutation: {
         addReport: (parent, args) => {
@@ -90,11 +98,53 @@ const yoga = createYoga({
             return new Error(e.message ?? "Something went wrong");
           }
         },
+        resolveReport: (parent, args) => {
+          try {
+            const reportIndex = reports.elements.findIndex(
+              (r) => r.id === args.id
+            );
+            if (!reports.elements[reportIndex]) return false;
+
+            reports.elements[reportIndex].state = "RESOLVED";
+
+            pubSub.publish("UPDATE_REPORT", {
+              id: args.id,
+              state: "RESOLVED",
+            });
+
+            return true;
+          } catch (e: any) {
+            return new Error(e.message ?? "Something went wrong");
+          }
+        },
+        blockReport: (parent, args) => {
+          try {
+            const reportIndex = reports.elements.findIndex(
+              (r) => r.id === args.id
+            );
+            if (!reports.elements[reportIndex]) return false;
+
+            reports.elements[reportIndex].state = "BLOCKED";
+
+            pubSub.publish("UPDATE_REPORT", {
+              id: args.id,
+              state: "BLOCKED",
+            });
+
+            return true;
+          } catch (e: any) {
+            return new Error(e.message ?? "Something went wrong");
+          }
+        },
       },
       Subscription: {
         broadcastReports: {
           resolve: (payload) => payload,
           subscribe: () => pubSub.subscribe("NEW_REPORT"),
+        },
+        updateReport: {
+          resolve: (payload) => payload,
+          subscribe: () => pubSub.subscribe("UPDATE_REPORT"),
         },
       },
     },
