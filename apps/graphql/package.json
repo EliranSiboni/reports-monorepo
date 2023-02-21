@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "TIMING=1 eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
     "clean": "rm -rf .turbo",
-    "dev": "nodemon --watch src --exec ts-node --esm src/server.ts"
+    "dev": "nodemon --watch src --exec  ts-node --esm src/server.ts"
   },
   "sideEffects": false,
   "type": "module",
@@ -15,7 +15,8 @@
     ".": "./src/server.ts",
     "./*": [
       "./src/*.ts",
-      "./src/*/server.ts"
+      "./src/*/server.ts",
+      "./src/*/database/schemas/*.ts"
     ]
   },
   "files": [
@@ -25,11 +26,13 @@
     "*": {
       "*": [
         "src/*",
-        "src/*/server"
+        "src/*/server",
+        "src/*/database/schemas"
       ]
     }
   },
   "devDependencies": {
+    "@types/mongoose": "^5.11.97",
     "@types/node": "^18.0.6",
     "eslint": "^8.11.0",
     "nodemon": "^2.0.20",
@@ -40,6 +43,7 @@
     "graphql": "^16.6.0",
     "graphql-ws": "^5.11.3",
     "graphql-yoga": "^3.6.0",
+    "mongoose": "^6.9.2",
     "ws": "^8.12.1"
   }
 }
