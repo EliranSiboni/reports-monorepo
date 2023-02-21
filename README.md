@@ -1,59 +1,67 @@
----
-name: Monorepo with Turborepo
-slug: monorepo-turborepo
-description: Learn to implement a monorepo with a single Next.js site that has installed two local packages.
-framework: Next.js
-useCase:
-  - Monorepos
-  - Documentation
-css: Tailwind
-deployUrl: https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/solutions/monorepo&project-name=monorepo&repository-name=monorepo&root-directory=apps/app&install-command=pnpm%20install&build-command=cd%20..%2F..%20%26%26%20pnpm%20build%20--filter%3Dapp...&ignore-command=npx%20turbo-ignore
-demoUrl: https://solutions-monorepo.vercel.sh
-relatedTemplates:
-  - monorepo-nx
-  - turborepo-next-basic
-  - turborepo-sveltekit-starter
----
+# Reports System - Using Next.js and Graphql 📟
 
-# Monorepo
+This is a monorepo to monitor realtime spam reports,
+using [Turborepo](https://turborepo.org/) and [pnpm workspaces](https://pnpm.io/workspaces) to link packages together.
 
-This is a monorepo example with a single Next.js site ([./apps/app](./apps/app)) that has installed two local packages:
+## Acknowledgements
 
-- [./packages/ui](./packages/ui): Exports UI components that use TypeScript and Tailwind CSS and is compiled by SWC.
-- [./packages/utils](./packages/utils): Exports utility functions that use TypeScript.
+- [Mext.js](https://nextjs.org/)
+- [Graphql Yoga](https://the-guild.dev/graphql/yoga-server)
+- [MongoDB](https://www.mongodb.com/)
 
-The monorepo is using [Turborepo](https://turborepo.org/) and [pnpm workspaces](https://pnpm.io/workspaces) to link packages together.
+## Installation
 
-For more examples on monorepos check out the [official Turborepo examples](https://github.com/vercel/turborepo/tree/main/examples).
+1. Clone the Repo and relocate to the project.
 
-## Demo
-
-https://solutions-monorepo.vercel.sh
-
-## How to Use
-
-You can choose from one of the following two methods to use this repository:
-
-### One-Click Deploy
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=vercel-examples):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/solutions/monorepo&project-name=monorepo&repository-name=monorepo&root-directory=apps/app&install-command=pnpm%20install&build-command=cd%20..%2F..%20%26%26%20pnpm%20build%20--filter%3Dapp...&ignore-command=npx%20turbo-ignore)
-
-### Clone and Deploy
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [pnpm](https://pnpm.io/installation) to bootstrap the example:
+2. Locate the .env file in the root project and run:
 
 ```bash
-pnpm create next-app --example https://github.com/vercel/examples/tree/main/solutions/monorepo monorepo
+    pnpm install
 ```
-
-Next, run `app` in development mode:
 
 ```bash
-pnpm dev
+    pnpm dev
 ```
 
-The app should be up and running at http://localhost:3000.
+The web app will run as default at http://localhost:3000
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=monorepo-example) ([Documentation](https://nextjs.org/docs/deployment)).
+The grapahql server will run at http://localhost:4000/graphql
+
+## Environment Variables
+
+To run this project, you need to use the env variables from admin
+
+## Running Tests
+
+Test where not completed, but you can test the server with graphql playground
+
+Insert report mutation:
+
+```
+mutation {
+  addReport(
+    state: "OPEN"
+    source: "REPORT"
+    sourceIdentityId: "12334-graphql"
+    reference: {referenceId: "12343-ref", referenceType: "REPORT"}
+    payload: {source: "REPORT", reportType: "SPAM", message: "hello world", reportId: "6706b3ba-bf36-4ad4-9b9d-4ebf4f4e2429", referenceResourceId: "a03411ce-0197-49a2-86d4-55e06aa52e79", referenceResourceType: "REPLY"}
+  ) {
+    id
+    state
+    payload {
+      reportType
+      message
+    }
+  }
+}
+```
+
+Reports query:
+
+```
+    query {
+        reports {
+            id
+        }
+    }
+```
