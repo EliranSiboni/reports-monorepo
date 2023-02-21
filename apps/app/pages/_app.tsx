@@ -5,11 +5,15 @@ import { ChakraProvider } from "@chakra-ui/react";
 
 import { client } from "apollo-client";
 import theme from "theme";
+import Head from "next/head";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={client}>
       <ChakraProvider theme={theme}>
+        <Head>
+          <title>Reports using Next.js + Apollo + Chakra UI</title>
+        </Head>
         <Component {...pageProps} />
       </ChakraProvider>
     </ApolloProvider>
