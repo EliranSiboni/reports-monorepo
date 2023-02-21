@@ -1,11 +1,9 @@
-import fs from "fs";
 import { createYoga, createSchema, createPubSub } from "graphql-yoga";
 import { createServer } from "node:http";
-import reports from "./database/reports.json" assert { type: "json" };
+import mongoose from "mongoose";
+import Report from "./database/schemas/report.js";
 
 const pubSub = createPubSub();
-
-const allReports = reports.elements;
 
 // Provide your schema
 const yoga = createYoga({
@@ -78,10 +76,10 @@ const yoga = createYoga({
     `,
     resolvers: {
       Query: {
-        reports: () => allReports.filter((r) => r.state !== "RESOLVED"),
+        reports: async () => await Report.where("state").ne("RESOLVED"),
       },
       Mutation: {
-        addReport: (parent, args) => {
+        addReport: async (parent, args) => {
           // validate fields
           if (!args.source) return false;
 
@@ -93,20 +91,23 @@ const yoga = createYoga({
               ...args,
             };
 
-            allReports.push(newReport);
+            const newReportModel = new Report(newReport);
+            await newReportModel.save();
 
             pubSub.publish("NEW_REPORT", newReport);
+
             return newReport;
           } catch (e: any) {
             return new Error(e.message ?? "Something went wrong");
           }
         },
-        resolveReport: (parent, args) => {
+        resolveReport: async (parent, args) => {
           try {
-            const reportIndex = allReports.findIndex((r) => r.id === args.id);
-            if (!allReports[reportIndex]) return false;
-
-            allReports[reportIndex].state = "RESOLVED";
+            await Report.findOneAndUpdate(
+              { id: args.id },
+              { state: "RESOLVED" },
+              { new: true }
+            );
 
             pubSub.publish("UPDATE_REPORT", {
               id: args.id,
@@ -118,12 +119,13 @@ const yoga = createYoga({
             return new Error(e.message ?? "Something went wrong");
           }
         },
-        blockReport: (parent, args) => {
+        blockReport: async (parent, args) => {
           try {
-            const reportIndex = allReports.findIndex((r) => r.id === args.id);
-            if (!allReports[reportIndex]) return false;
-
-            allReports[reportIndex].state = "BLOCKED";
+            const report = await Report.findOneAndUpdate(
+              { id: args.id },
+              { state: "BLOCKED" },
+              { new: true }
+            );
 
             pubSub.publish("UPDATE_REPORT", {
               id: args.id,
@@ -150,9 +152,21 @@ const yoga = createYoga({
   }),
 });
 
+mongoose
+  .connect(process.env.DATABASE_URL || "", {
+    autoIndex: true,
+  })
+  .then((db) => {
+    console.log("💾 Connected to database");
+    return db;
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
 const server = createServer(yoga);
 server.listen(process.env.SERVER_PORT ?? 4000, () => {
   console.info(
-    `Server is running on http://localhost:${process.env.SERVER_PORT}/graphql`
+    `🚀 Server is running on http://localhost:${process.env.SERVER_PORT}/graphql`
   );
 });
