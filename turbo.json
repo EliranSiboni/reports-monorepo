@@ -17,7 +17,7 @@
       "cache": false
     },
     "dev#graphql": {
-      "env": ["SERVER_PORT"],
+      "env": ["SERVER_PORT", "DATABASE_URL"],
       "cache": false
     },
     "start": {
